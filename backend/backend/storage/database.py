@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 from abc import ABC, abstractmethod
 from typing import Dict
+import datetime as dt
 
 
 class DbInterface(ABC):
@@ -26,10 +27,16 @@ class MongoInterface(DbInterface):
         collection = self.db['Runs']
         return collection.find({"user_data": {"user_ref": user_ref}})
 
+    def create_user(self) -> str:
+        collection = self.db["Users"]
+        user_data = {"user_data": {"created_at": dt.datetime.utcnow()}}
+        user = collection.insert_one(user_data)
+        return user.inserted_id()
+
 
 if __name__ == "__main__":
     # Example Usage
     interface = MongoInterface(password="FakePassword")
-    user_data = interface.get_user_data(user_ref = "test_user")
+    user_data = interface.get_user_data(user_ref="test_user")
     for run in user_data:
         print(run)

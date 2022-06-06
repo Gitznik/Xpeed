@@ -1,7 +1,6 @@
-from typing import Any, Dict
-
 import strawberry
-from strawberry.file_uploads import Upload
+
+from backend.storage.database import DbInterface
 
 
 @strawberry.type
@@ -103,9 +102,8 @@ class AddSpeedtestResultInput:
     result: 'ResultInput'
 
 
-def store_speedtest_results(speedtest_result: AddSpeedtestResultInput) -> SpeedtestResult:
-    # store_results(speedtest_result)
-    return SpeedtestResult(
+def store_speedtest_results(speedtest_result: AddSpeedtestResultInput, db: DbInterface) -> SpeedtestResult:
+    parsed_result = SpeedtestResult(
         type=speedtest_result.type,
         timestamp=speedtest_result.timestamp,
         ping=Ping(
@@ -146,3 +144,10 @@ def store_speedtest_results(speedtest_result: AddSpeedtestResultInput) -> Speedt
             persisted=speedtest_result.result.persisted
         )
     )
+ 
+    storage_dict = speedtest_result.__dict__
+    for field in ["ping", "download", "upload", "interface", "server", "result"]:
+        storage_dict[field] = storage_dict[field].__dict__
+    
+    db.save_run_results(storage_dict)
+    return parsed_result

@@ -1,7 +1,8 @@
-from pymongo import MongoClient
-from abc import ABC, abstractmethod
-from typing import Dict
 import datetime as dt
+from abc import ABC, abstractmethod
+from typing import Any, Dict
+
+from pymongo import MongoClient
 
 
 class DbInterface(ABC):
@@ -11,6 +12,14 @@ class DbInterface(ABC):
 
     @abstractmethod
     def get_user_data(self, user_ref):
+        pass
+
+    @abstractmethod
+    def create_user(self) -> str:
+        pass
+    
+    @abstractmethod
+    def save_run_results(self, run_results: Dict[str, Any]) -> str:
         pass
 
 
@@ -31,7 +40,13 @@ class MongoInterface(DbInterface):
         collection = self.db["Users"]
         user_data = {"user_data": {"created_at": dt.datetime.utcnow()}}
         user = collection.insert_one(user_data)
-        return user.inserted_id()
+        return user.inserted_id
+
+    def save_run_results(self, run_results: Dict[str, Any]) -> str:
+        collection = self.db["Runs"]
+        run = collection.insert_one(run_results)
+        return run.inserted_id
+        
 
 
 if __name__ == "__main__":

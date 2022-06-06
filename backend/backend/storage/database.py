@@ -17,7 +17,7 @@ class DbInterface(ABC):
     @abstractmethod
     def create_user(self) -> str:
         pass
-    
+
     @abstractmethod
     def save_run_results(self, run_results: Dict[str, Any]) -> str:
         pass
@@ -33,7 +33,7 @@ class MongoInterface(DbInterface):
         return client.Xpeed
 
     def get_user_data(self, user_ref: str) -> Dict:
-        collection = self.db['Runs']
+        collection = self.db["Runs"]
         return collection.find({"user_data": {"user_ref": user_ref}})
 
     def create_user(self) -> str:
@@ -46,7 +46,6 @@ class MongoInterface(DbInterface):
         collection = self.db["Runs"]
         run = collection.insert_one(run_results)
         return run.inserted_id
-        
 
 
 if __name__ == "__main__":

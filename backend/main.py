@@ -4,8 +4,11 @@ import strawberry
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from strawberry.fastapi import GraphQLRouter
+from strawberry.types import Info
 
 from backend import store_speedtest_results
+from backend.auth import authenticate
+from backend.errors import AuthenticationError
 from backend.register import register_user
 from backend.storage.database import MongoInterface
 
@@ -22,13 +25,19 @@ class Mutation:
     def store_speedtest_results(
         self,
         speedtest_result: store_speedtest_results.AddSpeedtestResultInput,
+        info: Info
     ) -> store_speedtest_results.SpeedtestResult:
-        return store_speedtest_results.store_speedtest_results(
-            speedtest_result,
-            MongoInterface(
+        db = MongoInterface(
                 user=os.environ.get("MONGO_USER"), password=os.environ.get("MONGO_PW")
-            ),
-        )
+            )
+        req = info.context["request"]
+        if authenticate(user_ref=req.headers["user_ref"], db=db):
+            return store_speedtest_results.store_speedtest_results(
+                speedtest_result=speedtest_result,
+            db=db
+            )
+        else:
+            raise AuthenticationError("Authentication failed, please provide a valid user_ref in your headers.")
 
 
 schema = strawberry.Schema(Mutation)

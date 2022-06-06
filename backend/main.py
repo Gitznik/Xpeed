@@ -28,13 +28,15 @@ class Mutation:
         info: Info
     ) -> store_speedtest_results.SpeedtestResult:
         db = MongoInterface(
-                user=os.environ.get("MONGO_USER"), password=os.environ.get("MONGO_PW")
+                user=os.environ["MONGO_USER"], password=os.environ["MONGO_PW"]
             )
         req = info.context["request"]
-        if authenticate(user_ref=req.headers["user_ref"], db=db):
+        user_ref = req.headers["user_ref"]
+        if authenticate(user_ref=user_ref, db=db):
             return store_speedtest_results.store_speedtest_results(
                 speedtest_result=speedtest_result,
-            db=db
+                user_ref=user_ref,
+                db=db
             )
         else:
             raise AuthenticationError("Authentication failed, please provide a valid user_ref in your headers.")

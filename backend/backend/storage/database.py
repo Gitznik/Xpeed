@@ -1,8 +1,9 @@
 import datetime as dt
 from abc import ABC, abstractmethod
-from typing import Any, Dict
+from typing import Any, Dict, Iterable, Optional
 
-from pymongo import MongoClient
+from bson.objectid import ObjectId
+from pymongo.mongo_client import MongoClient
 
 
 class DbInterface(ABC):
@@ -12,6 +13,10 @@ class DbInterface(ABC):
 
     @abstractmethod
     def get_user_data(self, user_ref):
+        pass
+
+    @abstractmethod
+    def get_user_ref(self, user_ref: str) -> Dict:
         pass
 
     @abstractmethod
@@ -32,7 +37,12 @@ class MongoInterface(DbInterface):
         client = MongoClient(server_url)
         return client.Xpeed
 
-    def get_user_data(self, user_ref: str) -> Dict:
+    def get_user_ref(self, user_ref: str) -> Optional[Dict]:
+        user_id = ObjectId(user_ref)
+        collection = self.db["Users"]
+        return collection.find_one({"_id": user_id}) 
+
+    def get_user_data(self, user_ref: str) -> Optional[Iterable]:
         collection = self.db["Runs"]
         return collection.find({"user_data": {"user_ref": user_ref}})
 
@@ -50,7 +60,7 @@ class MongoInterface(DbInterface):
 
 if __name__ == "__main__":
     # Example Usage
-    interface = MongoInterface(password="FakePassword")
+    interface = MongoInterface(user="FakeUser", password="FakePassword")
     user_data = interface.get_user_data(user_ref="test_user")
     for run in user_data:
         print(run)

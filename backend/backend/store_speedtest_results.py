@@ -112,7 +112,7 @@ class AddSpeedtestResultInput:
 
 
 def store_speedtest_results(
-    speedtest_result: AddSpeedtestResultInput, db: DbInterface
+    speedtest_result: AddSpeedtestResultInput, user_ref: str, db: DbInterface
 ) -> SpeedtestResult:
     parsed_result = SpeedtestResult(
         type=speedtest_result.type,
@@ -155,9 +155,15 @@ def store_speedtest_results(
         ),
     )
 
-    storage_dict = speedtest_result.__dict__
+    speedtest_dict = speedtest_result.__dict__
     for field in ["ping", "download", "upload", "interface", "server", "result"]:
-        storage_dict[field] = storage_dict[field].__dict__
-
+        speedtest_dict[field] = speedtest_dict[field].__dict__
+    
+    storage_dict = {
+        "data": speedtest_dict,
+        "user_data": {
+            "user_ref": user_ref,
+        }
+    }
     db.save_run_results(storage_dict)
     return parsed_result

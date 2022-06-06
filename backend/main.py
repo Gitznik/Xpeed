@@ -25,7 +25,9 @@ class Mutation:
     ) -> store_speedtest_results.SpeedtestResult:
         return store_speedtest_results.store_speedtest_results(
             speedtest_result,
-            MongoInterface(password=os.environ.get("MONGO_PW")),
+            MongoInterface(
+                user=os.environ.get("MONGO_USER"), password=os.environ.get("MONGO_PW")
+            ),
         )
 
 

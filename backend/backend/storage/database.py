@@ -24,11 +24,11 @@ class DbInterface(ABC):
 
 
 class MongoInterface(DbInterface):
-    def __init__(self, password: str):
-        self.db = self._connect(password=password)
+    def __init__(self, user: str, password: str):
+        self.db = self._connect(user=user, password=password)
 
-    def _connect(self, password: str):
-        server_url = f"mongodb+srv://Rob:{password}@xpeedprod.2tlk5.mongodb.net/?retryWrites=true&w=majority"
+    def _connect(self, user: str, password: str):
+        server_url = f"mongodb+srv://{user}:{password}@xpeedprod.2tlk5.mongodb.net/?retryWrites=true&w=majority"
         client = MongoClient(server_url)
         return client.Xpeed
 

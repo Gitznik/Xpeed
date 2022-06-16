@@ -19,7 +19,10 @@ load_dotenv()
 class Mutation:
     @strawberry.field
     def register(self) -> str:
-        return register_user()
+        db = MongoInterface(
+            user=os.environ["MONGO_USER"], password=os.environ["MONGO_PW"]
+        )
+        return register_user(db=db)
 
     @strawberry.mutation
     def store_speedtest_results(

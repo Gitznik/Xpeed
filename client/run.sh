@@ -3,4 +3,4 @@ echo "Results written to results.json"
 cat results.json
 
 # Send results to server, access token available und $TOKEN
-sh ./uploader
+./uploader

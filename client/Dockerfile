@@ -11,6 +11,7 @@ RUN go mod download
 COPY uploader/*.go ./
  
 RUN go build -o /uploader
+RUN CGO_ENABLED=0 go build -o uploader
  
 # DEPLOY
 FROM debian:buster
@@ -24,7 +25,9 @@ RUN apt-get install speedtest
 
 COPY ./run.sh ./run.sh
 COPY --from=build_uploader /uploader /uploader
+COPY --from=build_uploader /usr/local/xpeed/uploader ./uploader
 
 RUN chmod +x ./run.sh
+RUN chmod +x ./uploader
 
 CMD ["sh", "run.sh"]

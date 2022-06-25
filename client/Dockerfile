@@ -10,7 +10,6 @@ RUN go mod download
  
 COPY uploader/*.go ./
  
-RUN go build -o /uploader
 RUN CGO_ENABLED=0 go build -o uploader
  
 # DEPLOY
@@ -24,7 +23,6 @@ RUN curl -s https://install.speedtest.net/app/cli/install.deb.sh | bash
 RUN apt-get install speedtest
 
 COPY ./run.sh ./run.sh
-COPY --from=build_uploader /uploader /uploader
 COPY --from=build_uploader /usr/local/xpeed/uploader ./uploader
 
 RUN chmod +x ./run.sh
